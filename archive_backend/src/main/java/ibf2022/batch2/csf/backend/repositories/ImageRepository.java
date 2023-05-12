@@ -3,6 +3,8 @@ package ibf2022.batch2.csf.backend.repositories;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Date;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
+
+import ibf2022.batch2.csf.backend.models.Bundle;
 
 @Repository
 public class ImageRepository {
@@ -23,10 +28,13 @@ public class ImageRepository {
 	@Value("${DO_STORAGE_BUCKETNAME}")
 	public String bucketName;
 
+	@Value("${DO_STORAGE_ENDPOINT}")
+	public String endpoint;
+
 	// TODO: Task 3
 	// You are free to change the parameter and the return type
 	// Do not change the method's name
-	public Object upload(File file, String fileName ,String contentType, long size) throws FileNotFoundException {
+	public String upload(File file, String fileName ,String contentType, long size) throws FileNotFoundException {
 
 		// construct metadata to be uploaded to S3
 		ObjectMetadata metadata = new ObjectMetadata();
@@ -37,9 +45,12 @@ public class ImageRepository {
 		PutObjectRequest putRequest = new PutObjectRequest(bucketName, fileName,
 				new FileInputStream(file), metadata);
 		putRequest.withCannedAcl(CannedAccessControlList.PublicRead);
-		s3Client.putObject(putRequest);
-		System.out.println("done upload"); // debug
 
-		return null;
+		PutObjectResult result = s3Client.putObject(putRequest);
+
+		// https://leem0060-csf-assessment.sgp1.digitaloceanspaces.com/number0.jpg
+		String url = "https://" + bucketName + "." + endpoint + "/" + fileName ;
+
+		return url;
 	}
 }
