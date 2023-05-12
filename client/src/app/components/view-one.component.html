@@ -1,0 +1,19 @@
+<form [formGroup]="form" (ngSubmit)="processForm()">
+
+    <table>
+        <tr>
+            Name: <input type="text" formControlName="name">
+        </tr>
+        <tr>
+            Title: <input type="text" formControlName="title">
+        </tr>
+        <tr>
+            Comments: <textarea formControlName="comments" id="" cols="30" rows="5"></textarea>
+        </tr>
+        <tr>
+            Archive: <input type="file" formControlName="archive" #file>
+        </tr>
+        <button type="button" [routerLink]="['']">Cancel</button>
+        <button type="submit" [disabled]="form.invalid">Submit</button>
+    </table>
+</form>
