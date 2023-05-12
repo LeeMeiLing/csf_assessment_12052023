@@ -19,9 +19,9 @@ export class ViewTwoComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.param$ = this.activatedRoute.params.subscribe(
-      async (params) => {
+      (params) => {
         this.bundleId = params['bundleId']
-        await this.getBundle()
+        this.getBundle()
       }
     )
   }

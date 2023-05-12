@@ -31,7 +31,7 @@ export class ViewOneComponent implements OnInit, OnDestroy{
     return this.fb.group({
       name:this.fb.control<string>('',[Validators.required]),
       title:this.fb.control<string>('',[Validators.required]),
-      comments:this.fb.control<string>(' '),
+      comments:this.fb.control<string>('nil'),
       archive:this.fb.control('',[Validators.required]),
 
     })
@@ -40,13 +40,12 @@ export class ViewOneComponent implements OnInit, OnDestroy{
 
   processForm(){
 
+    console.log('>>> comment empty: ', this.form.get('comments'))
     const formData = new FormData();
     formData.set('name', this.form.value['name']);
     formData.set('title', this.form.value['title'])
     formData.set('comments', this.form.value['comments'])
     formData.set('archive', this.archive.nativeElement.files[0])
-
-    // this.router.navigate(['/view2'],{ queryParams: formData })
 
     const headers = new HttpHeaders().set('Accept','application/json')
 

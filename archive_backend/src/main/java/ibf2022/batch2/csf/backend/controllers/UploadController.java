@@ -5,14 +5,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.http.HttpStatus;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,6 +28,8 @@ import ibf2022.batch2.csf.backend.models.Bundle;
 import ibf2022.batch2.csf.backend.repositories.ArchiveRepository;
 import ibf2022.batch2.csf.backend.repositories.ImageRepository;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 
 @CrossOrigin(origins = "*")
@@ -47,8 +50,7 @@ public class UploadController {
 	public ResponseEntity<String> upload(@RequestPart MultipartFile archive,
 			@RequestPart String name, @RequestPart String title, @RequestPart String comments) throws IOException {
 		
-		// System.out.println(">> in controller upload()");
-		// System.out.println(archive.getOriginalFilename());
+	
 		// System.out.println(archive.getContentType());// application/x-zip-compressed
 
 		try{
@@ -57,9 +59,11 @@ public class UploadController {
 			b.setDate(new Date());
 			b.setName(name);
 			b.setTitle(title);
-			if(comments.trim() != null){
+			if(comments.equals("nil")){
+				b.setComments(null);
+			}else{
 				b.setComments(comments);
-			} // check if need setComment to null
+			}
 	
 			// expand zip zrchive
 			InputStream is = archive.getInputStream();
@@ -110,13 +114,13 @@ public class UploadController {
 
 			JsonObject payload = Json.createObjectBuilder().add("bundleId", b.getBundleId()).build();
 
-			return ResponseEntity.status(HttpStatus.SC_CREATED).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+			return ResponseEntity.status(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
 	
 		}catch(Exception ex){
 
 			JsonObject payload = Json.createObjectBuilder().add("error", ex.getMessage()).build();
 
-			return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
 	
 		}
 
@@ -133,18 +137,18 @@ public class UploadController {
 
 			if(doc != null){
 
-				return ResponseEntity.status(HttpStatus.SC_CREATED).contentType(MediaType.APPLICATION_JSON).body(doc.toJson().toString());
+				return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(doc.toJson().toString());
 
 			}else{
 				JsonObject payload = Json.createObjectBuilder().add("error", bundleId +" not found").build();
-				return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
 			}
 		
 		
 		}catch(Exception ex){
 
 			JsonObject payload = Json.createObjectBuilder().add("error", ex.getMessage()).build();
-			return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
 
 		}
 
@@ -153,5 +157,44 @@ public class UploadController {
 	}
 
 	// TODO: Task 6
+	@GetMapping(path = "/bundles", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getBundle(){
+
+		try{
+			List<Document> docs = arRepo.getBundles();
+
+
+			if(docs.size() > 0){
+				JsonArrayBuilder arrB = Json.createArrayBuilder();
+
+				for(Document d : docs){
+
+					JsonObject jo = Json.createObjectBuilder()
+										.add("bundleId", d.getString("bundleId"))
+										.add("date", d.getDate("date").toString())
+										.add("title", d.getString("title"))
+										.build();
+					arrB.add(jo);
+
+				}
+				JsonArray arr = arrB.build();
+				System.out.println(" in controller: " + arr);
+				return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(arr.toString());
+
+			}else{
+				JsonObject payload = Json.createObjectBuilder().add("error", "no result").build();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+
+			}
+
+		}catch(Exception ex){
+
+			JsonObject payload = Json.createObjectBuilder().add("error", ex.getMessage()).build();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+
+		}
+
+	}
+
 
 }

@@ -15,3 +15,11 @@ export interface Bundle{
     urls:string[]
 
 }
+
+export interface GetResponse{
+
+    bundleId:string,
+    date:string,
+    title:string,
+
+}

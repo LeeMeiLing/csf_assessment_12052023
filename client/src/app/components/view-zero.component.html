@@ -1,1 +1,11 @@
-<p>view-zero works!</p>
+<h1>Photo Storage</h1>
+&nbsp;
+<button [routerLink]="['/view1']">Upload</button>
+&nbsp;
+<table>
+    <tr *ngFor="let b of arr">
+        <span><a [routerLink]="['/view2', b.bundleId]">{{b.title}}</a></span>
+        &nbsp;
+        <span>{{b.date}}</span>
+    </tr>
+</table>

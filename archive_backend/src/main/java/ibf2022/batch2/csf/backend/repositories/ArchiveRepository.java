@@ -1,7 +1,11 @@
 package ibf2022.batch2.csf.backend.repositories;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -63,10 +67,30 @@ public class ArchiveRepository {
 	// You are free to change the parameter and the return type
 	// Do not change the method's name
 	// Write the native mongo query that you will be using in this method
+	/*
+	 * db.archives.find(
+			{},
+			{ _id:0, bundleId:1, date:1, title:1}
+		).sort(
+			{ date:-1, title:1 }
+		)
+	 */
 	//
-	//
-	public Object getBundles(/* any number of parameters here */) {
-		return null;
+	public List<Document> getBundles() {
+
+		Query query = new Query();
+
+		List<Sort.Order> orders = new ArrayList<>();
+		orders.add(new Sort.Order(Sort.Direction.DESC, "date")) ;
+		orders.add(new Sort.Order(Sort.Direction.ASC, "title"));
+		
+		Sort sort = Sort.by(orders);
+		query.with(sort).
+		fields().exclude("_id").include("bundleId","date","title");
+
+		List<Document> result = mongoTemplate.find(query, Document.class,C_ARCHIVE);
+		System.out.println(result);
+		return result;
 	}
 
 
