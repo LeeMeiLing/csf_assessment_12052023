@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { Bundle } from '../models';
 
 @Component({
   selector: 'app-view-two',
@@ -10,35 +11,43 @@ import { Subscription } from 'rxjs';
 })
 export class ViewTwoComponent implements OnInit, OnDestroy{
 
-  queryParam$!: Subscription
-  formData!: FormData
+  param$!: Subscription
+  bundleId!: string
+  result!: Bundle
 
   constructor(private activatedRoute:ActivatedRoute, private httpClient:HttpClient){}
 
   ngOnInit(): void {
-    this.queryParam$ = this.activatedRoute.queryParams.subscribe(
-      async (queryParams) => {
-        this.formData = queryParams['formData']
-        // await this.upload()
+    this.param$ = this.activatedRoute.params.subscribe(
+      async (params) => {
+        this.bundleId = params['bundleId']
+        await this.getBundle()
       }
     )
   }
+  
   ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
+    if(this.param$){
+      this.param$.unsubscribe()
+    }
   }
-
-  // upload(){
-
-  //   const headers = new HttpHeaders().set('Accept','application/json').set('Content-Type', 'multipart/form-data')
-
-  //   this.httpClient.post<any>(`/upload`,this.formData, { headers })
-  //   .subscribe({
-  //     next: v => {
-  //       // this.payload = v as PostResponse
-  //       console.log('posted to server')
-  //     }
-  //   })
+  
+  getBundle() {
     
-  // }
+    const headers = new HttpHeaders().set('Accept','application/json')
 
+    this.httpClient.get<any>(`/bundle/${this.bundleId}`,{headers}).subscribe({
+      next: v=>{
+        this.result = v as Bundle
+        this.result.date = v['date']['$date']
+        // console.log(v['date'])
+      },
+      error: (err) => {
+        console.error(err)
+        alert(err.error.error)
+      },
+      // complete:
+    })
+  }
+  
 }

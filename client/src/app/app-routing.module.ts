@@ -7,7 +7,7 @@ import { ViewTwoComponent } from './components/view-two.component';
 const routes: Routes = [
   // { path:'', component:ViewZeroComponent},
   { path:'', component:ViewOneComponent},
-  { path:'view2', component:ViewTwoComponent},
+  { path:'view2/:bundleId', component:ViewTwoComponent},
   { path:'**', redirectTo:'/', pathMatch:'full'}
 
 ];

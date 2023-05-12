@@ -15,6 +15,8 @@ export class ViewOneComponent implements OnInit, OnDestroy{
   @ViewChild('file')
   archive! : ElementRef
 
+  bundleId!: string
+
   constructor(private fb:FormBuilder, private router:Router, private httpClient:HttpClient){}
 
 
@@ -51,8 +53,15 @@ export class ViewOneComponent implements OnInit, OnDestroy{
     this.httpClient.post<any>(`/upload`,formData, { headers })
     .subscribe({
       next: v => {
-        console.log('posted to server')
-      }
+        this.bundleId = v['bundleId']
+        console.log('posted to server, bundleId: ' , this.bundleId)
+
+      },
+      error: (err) => {
+        console.error(err)
+        alert(err.error.error)
+      },
+      complete: () => this.router.navigate(['/view2', this.bundleId])
     })
 
     

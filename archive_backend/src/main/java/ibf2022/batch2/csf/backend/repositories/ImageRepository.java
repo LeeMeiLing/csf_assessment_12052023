@@ -3,10 +3,6 @@ package ibf2022.batch2.csf.backend.repositories;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.UUID;
-import java.util.zip.ZipEntry;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -15,9 +11,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-
-import ibf2022.batch2.csf.backend.models.Bundle;
 
 @Repository
 public class ImageRepository {
@@ -46,7 +39,7 @@ public class ImageRepository {
 				new FileInputStream(file), metadata);
 		putRequest.withCannedAcl(CannedAccessControlList.PublicRead);
 
-		PutObjectResult result = s3Client.putObject(putRequest);
+		s3Client.putObject(putRequest);
 
 		// https://leem0060-csf-assessment.sgp1.digitaloceanspaces.com/number0.jpg
 		String url = "https://" + bucketName + "." + endpoint + "/" + fileName ;

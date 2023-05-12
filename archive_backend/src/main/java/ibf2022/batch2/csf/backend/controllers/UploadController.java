@@ -1,7 +1,6 @@
 package ibf2022.batch2.csf.backend.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +11,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.http.HttpStatus;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +44,6 @@ public class UploadController {
 	// Content-Type: multipart/form-data
 	// Accept: application/json
 	@PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	// public ResponseEntity<String> upload(
 	public ResponseEntity<String> upload(@RequestPart MultipartFile archive,
 			@RequestPart String name, @RequestPart String title, @RequestPart String comments) throws IOException {
 		
@@ -77,7 +78,6 @@ public class UploadController {
 				while (tk.hasMoreTokens()) {
 					if (count == 1) {
 						filenameExt = tk.nextToken();
-						System.out.println(filenameExt); // debug
 						contentType = "image/" + filenameExt;
 						break;
 					} else {
@@ -125,6 +125,32 @@ public class UploadController {
 	}
 
 	// TODO: Task 5
+	@GetMapping(path = "/bundle/{bundleId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getBundle(@PathVariable String bundleId){
+
+		try{
+			Document doc = arRepo.getBundleByBundleId(bundleId);
+
+			if(doc != null){
+
+				return ResponseEntity.status(HttpStatus.SC_CREATED).contentType(MediaType.APPLICATION_JSON).body(doc.toJson().toString());
+
+			}else{
+				JsonObject payload = Json.createObjectBuilder().add("error", bundleId +" not found").build();
+				return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+			}
+		
+		
+		}catch(Exception ex){
+
+			JsonObject payload = Json.createObjectBuilder().add("error", ex.getMessage()).build();
+			return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON).body(payload.toString());
+
+		}
+
+
+		
+	}
 
 	// TODO: Task 6
 

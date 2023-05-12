@@ -1,1 +1,16 @@
-<p>view-two works!</p>
+<div *ngIf="result">
+    <h2>{{result.title}}</h2>
+    <h3> 
+        <span>by {{result.name}} </span>
+        <span>on {{result.date | date: 'MMM d,y'}}</span>
+    </h3>
+   
+    <p *ngIf="result.comments">{{result.comments}}</p>
+    &nbsp;
+    <table>
+        <tr *ngFor="let p of result.urls">
+            <img src="{{p}}" width="250px">
+        </tr>
+        <button [routerLink]="['/']">Back</button>
+    </table>
+</div>
